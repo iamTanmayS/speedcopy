@@ -16,7 +16,7 @@ test-*.mjs
 tmp-*.mjs
 run-schema.mjs
 update_yaml.js
-package-lock.json
+# package-lock.json removed from ignore for reliability
 LICENSE
 .vscode/
 .idea/
