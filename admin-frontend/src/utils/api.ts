@@ -1,4 +1,4 @@
-export const API_BASE_URL = 'http://localhost:4000';
+export const API_BASE_URL = 'https://speedcopy-backend-sms7.onrender.com';
 
 export const getAccessToken = () => localStorage.getItem('access_token');
 export const setAccessToken = (token: string) => localStorage.setItem('access_token', token);
