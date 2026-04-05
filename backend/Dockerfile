@@ -3,12 +3,13 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Install dependencies
+# Install build dependencies
 COPY package*.json ./
 RUN npm install
 
 # Copy source and build
-COPY . .
+COPY tsconfig.json ./
+COPY src/ ./src/
 RUN npm run build
 
 # Production Stage
@@ -16,15 +17,21 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Use production env for performance
+ENV NODE_ENV=production
+
 # Install only production dependencies
 COPY package*.json ./
-RUN npm install --production
+RUN npm install --omit=dev
 
 # Copy built artifacts from builder stage
 COPY --from=builder /app/dist ./dist
 
-# Expose Core Service Port
+# Security: Run as non-privileged user
+USER node
+
+# Expose Service Port
 EXPOSE 4000
 
 # Start Application
-CMD ["npm", "start"]
+CMD ["node", "dist/server.js"]

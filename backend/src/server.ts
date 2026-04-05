@@ -27,6 +27,11 @@ app.use("/api/vendor", vendorRoutes);
 app.use("/api/catalog", catalogRoutes);
 app.use("/api/admin", adminRoutes);
 
+// Health check endpoint for Docker/Render
+app.get("/api/health", (req, res) => {
+    res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 app.post('/create-payment-intent', async (req, res) => {
     try {
         const { amount } = req.body;
