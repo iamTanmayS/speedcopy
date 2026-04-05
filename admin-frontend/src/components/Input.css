@@ -1,0 +1,51 @@
+/* Input.css */
+.sc-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--space-md);
+}
+
+.sc-input-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-secondary);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.sc-input {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-surface);
+  color: var(--fg-default);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02) inset;
+}
+
+.sc-input::placeholder {
+  color: var(--gray-400);
+}
+
+.sc-input:focus {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-accent-glow), 0 1px 2px rgba(0,0,0,0.02) inset;
+}
+
+.sc-input-error {
+  border-color: var(--status-error);
+}
+
+.sc-input-error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2), 0 1px 2px rgba(0,0,0,0.02) inset;
+}
+
+.sc-input-error-text {
+  font-size: 12px;
+  color: var(--status-error);
+  margin-top: 6px;
+  font-weight: 500;
+}

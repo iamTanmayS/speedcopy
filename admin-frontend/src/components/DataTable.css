@@ -1,0 +1,108 @@
+.sc-table-container {
+  width: 100%;
+  overflow-x: auto;
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+}
+
+.sc-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.sc-table th, .sc-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.sc-table th {
+  background-color: rgba(0,0,0,0.015);
+  font-weight: 600;
+  color: var(--fg-secondary);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sc-table td {
+  font-size: 14px;
+  color: var(--fg-default);
+  vertical-align: middle;
+}
+
+.sc-table tr:hover td {
+  background-color: var(--bg-app);
+}
+
+.sc-table-loading {
+  padding: 64px 20px;
+  text-align: center;
+  color: var(--fg-muted);
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  font-weight: 500;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.sc-table-empty {
+  padding: 64px 20px;
+  text-align: center;
+  color: var(--fg-muted);
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  font-weight: 500;
+}
+
+/* Beautiful Pill Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.badge-success { 
+  background-color: #d1fae5; 
+  color: #065f46; 
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge-warning { 
+  background-color: #fef3c7; 
+  color: #92400e; 
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.badge-error { 
+  background-color: #fee2e2; 
+  color: #991b1b; 
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.badge-neutral { 
+  background-color: var(--gray-100); 
+  color: var(--gray-600); 
+  border: 1px solid var(--border-color);
+}
+
+@media (prefers-color-scheme: dark) {
+  .badge-success { background-color: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); color: #34d399; }
+  .badge-warning { background-color: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+  .badge-error { background-color: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); color: #f87171; }
+  .badge-neutral { background-color: rgba(255,255,255,0.05); color: var(--gray-400); border-color: rgba(255,255,255,0.1); }
+}

@@ -1,0 +1,97 @@
+/* Button.css */
+.sc-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.sc-button:active {
+  transform: scale(0.97);
+}
+
+.sc-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Variants */
+.sc-button-primary {
+  background-color: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  border: 1px solid rgba(0,0,0,0.05); /* Adds crisp edge */
+}
+
+.sc-button-primary:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); /* Soft indigo glow */
+}
+
+.sc-button-primary:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-accent-glow);
+}
+
+.sc-button-secondary {
+  background-color: var(--bg-surface);
+  color: var(--fg-default);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.sc-button-secondary:hover:not(:disabled) {
+  background-color: var(--bg-muted);
+  border-color: var(--gray-300);
+}
+
+.sc-button-danger {
+  background-color: var(--status-error);
+  color: var(--on-accent);
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.sc-button-danger:hover:not(:disabled) {
+  background-color: #dc2626;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+/* Sizes */
+.sc-button-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.sc-button-md {
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.sc-button-lg {
+  padding: 12px 24px;
+  font-size: 16px;
+}
+
+/* Spinner for loading state */
+.sc-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: currentColor;
+  animation: spin 0.8s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

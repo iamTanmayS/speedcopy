@@ -1,0 +1,490 @@
+openapi: 3.0.3
+info:
+  title: SpeedCopy MVP API
+  description: |
+    Strict API specification for the SpeedCopy Multi-Vendor Printing Platform MVP.
+    This document covers the core Phone-only Auth, User Profile, Catalog, Orders, Vendor Dashboard, and Admin Overview endpoints.
+  version: 1.0.0
+  contact:
+    name: SpeedCopy Dev Team
+
+servers:
+  - url: http://localhost:4000
+    description: Local Development Server
+
+tags:
+  - name: Authentication
+    description: Phone-only authentication flows
+  - name: User
+    description: Customer profile management
+  - name: Catalog
+    description: Public printing products and templates
+  - name: Orders
+    description: Customer order placement and tracking
+  - name: Vendor
+    description: Vendor production queues
+  - name: Admin
+    description: Platform oversight statistics
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Generic Wrappers
+    ApiError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: AUTH_UNAUTHORIZED
+            message:
+              type: string
+              example: Invalid credentials
+
+    # Authentication
+    LoginRequest:
+      type: object
+      required:
+        - phone
+        - password
+      properties:
+        phone:
+          type: string
+          example: "+919876543210"
+        password:
+          type: string
+          format: password
+          example: "secret123"
+
+    RegisterRequest:
+      type: object
+      required:
+        - name
+        - phone
+        - password
+      properties:
+        name:
+          type: string
+          example: "Rahul Kumar"
+        phone:
+          type: string
+          example: "+919876543210"
+        password:
+          type: string
+          format: password
+          example: "secret123"
+
+    AuthTokens:
+      type: object
+      properties:
+        accessToken:
+          type: string
+
+    AuthenticatedUser:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        phone:
+          type: string
+        role:
+          type: string
+          enum: [customer, vendor, delivery_partner, admin]
+        name:
+          type: string
+          nullable: true
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            tokens:
+              $ref: '#/components/schemas/AuthTokens'
+            user:
+              $ref: '#/components/schemas/AuthenticatedUser'
+
+    RefreshRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+
+    RefreshResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/AuthTokens'
+
+    # User
+    CustomerProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        phone:
+          type: string
+        name:
+          type: string
+        city:
+          type: string
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        city:
+          type: string
+
+    CustomerProfileResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/CustomerProfile'
+
+    # Orders & Mocks
+    GenericSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+
+paths:
+  # Authentication Endpoints
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: User registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshResponse'
+        '401':
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  # User Endpoints
+  /users/me:
+    get:
+      tags:
+        - User
+      summary: Get current logged-in user profile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerProfileResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+    patch:
+      tags:
+        - User
+      summary: Update user profile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerProfileResponse'
+
+  # Catalog Endpoints
+  /api/catalog:
+    get:
+      tags:
+        - Catalog
+      summary: Fetch product catalog
+      responses:
+        '200':
+          description: Catalog returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+
+  # Order Endpoints
+  /api/orders:
+    post:
+      tags:
+        - Orders
+      summary: Create a new order
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+    get:
+      tags:
+        - Orders
+      summary: Get my orders
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List placed orders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+
+  # Vendor Endpoints
+  /api/vendor/dashboard:
+    get:
+      tags:
+        - Vendor
+      summary: Fetch vendor production queue and stats
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Vendor dashboard metrics returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+
+  /api/vendor/orders/{orderId}:
+    patch:
+      tags:
+        - Vendor
+      summary: Update order status (Accept, Production, Ready)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Order updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+
+  # Admin Endpoints
+  /api/admin/dashboard:
+    get:
+      tags:
+        - Admin
+      summary: Fetch global metrics 
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Dashboard metrics returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+
+  /api/admin/users:
+    get:
+      tags:
+        - Admin
+      summary: List users
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Users list returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+
+  /api/admin/vendors:
+    get:
+      tags:
+        - Admin
+      summary: List vendors
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Vendors list returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+
+  /api/admin/orders:
+    get:
+      tags:
+        - Admin
+      summary: List orders
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Orders list returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+
+  /api/admin/hubs:
+    get:
+      tags:
+        - Admin
+      summary: List hubs
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Hubs list returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+
+  /api/admin/payouts:
+    get:
+      tags:
+        - Admin
+      summary: List payouts
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Payouts list returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+
+  /api/admin/sub-admins:
+    get:
+      tags:
+        - Admin
+      summary: List sub-admins
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Sub-admins list returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
