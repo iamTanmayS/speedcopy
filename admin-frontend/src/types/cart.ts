@@ -1,4 +1,4 @@
-import { UUID, PaisaAmount, ISODateString, DeliveryMode } from './shared.js';
+import { UUID, PaisaAmount, ISODateString } from './shared.js';
 import { Product, SKU } from './catalog.js';
 import { UploadedFile } from './upload.js';
 

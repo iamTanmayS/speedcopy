@@ -1,4 +1,4 @@
-import { UUID, ISODateString, PaisaAmount } from './shared.js';
+import { UUID, PaisaAmount } from './shared.js';
 
 export interface Category {
     id: UUID;
