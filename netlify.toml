@@ -1,0 +1,11 @@
+# Netlify configuration for the admin-frontend monorepo folder
+[build]
+  base = "admin-frontend"
+  command = "npm run build"
+  publish = "dist"
+
+# Ensure React Router works correctly on all sub-paths
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
