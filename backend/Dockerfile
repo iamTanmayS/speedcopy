@@ -7,9 +7,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# Copy source and build
-COPY tsconfig.json ./
-COPY src/ ./src/
+# Copy all files from the backend directory and build
+COPY . .
 RUN npm run build
 
 # Production Stage
