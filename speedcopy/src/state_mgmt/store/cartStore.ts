@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CartItem } from '../../types/cart';
-import { sendInstantNotification } from '../../services/NotificationService';
 
 export interface Address {
   id: string;
@@ -75,10 +74,7 @@ export const useCartStore = create<CartState>()(
         label: 'UPI Payments',
         subLabel: 'Google Pay, Phone Pay, Paytm'
       },
-      addToCart: (item) => {
-        sendInstantNotification('Added to Cart 🛒', `${item.product?.title || 'Item'} has been successfully added to your cart.`);
-        set((state) => ({ cart: [...state.cart, item] }));
-      },
+      addToCart: (item) => set((state) => ({ cart: [...state.cart, item] })),
       removeFromCart: (itemId) => set((state) => ({
         cart: state.cart.filter((item) => item.id !== itemId)
       })),

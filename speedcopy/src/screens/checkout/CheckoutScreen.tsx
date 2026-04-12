@@ -9,7 +9,6 @@ import { Header } from '../../components/common/Header';
 import { CartItemCard } from '../../components/common/CartItemCard';
 import { PriceDetailsCard } from '../../components/common/PriceDetailsCard';
 import { useCreateOrderMutation } from '../../api/order.api';
-import { sendInstantNotification } from '../../services/NotificationService';
 
 export const CheckoutScreen = ({ navigation }: any) => {
   const { theme } = useTheme();
@@ -65,7 +64,6 @@ export const CheckoutScreen = ({ navigation }: any) => {
       
       if (result.success) {
         // Payment is mocked - in production, this would charge via payment gateway
-        sendInstantNotification('Order Placed Successfully! 🎉', 'Your order has been placed and is being processed.');
         clearCart();
         navigation.replace('TrackOrder', { orderId: result.data.id });
       } else {

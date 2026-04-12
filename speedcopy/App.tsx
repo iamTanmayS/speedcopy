@@ -7,7 +7,6 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { queryClient } from './src/api/queryClient';
 import { useAuthStore } from './src/state_mgmt/store/authStore';
-import { initializeNotifications, scheduleMarketingNotifications } from './src/services/NotificationService';
 
 export default function App() {
   const { fetchDevToken } = useAuthStore();
@@ -19,15 +18,6 @@ export default function App() {
       fetchDevToken();
     }
     */
-    
-    // Initialize notifications
-    const setupNotifications = async () => {
-      const isGranted = await initializeNotifications();
-      if (isGranted) {
-        await scheduleMarketingNotifications();
-      }
-    };
-    setupNotifications();
   }, []);
 
   return (

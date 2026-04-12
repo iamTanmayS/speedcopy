@@ -31,21 +31,22 @@ const palette = {
     black: "#000000",
     white: "#ffffff",
     gray: {
-        100: "#f7fafc",
+        100: "#f8fafc",
         300: "#e2e8f0",
-        500: "#a0aec0",
-        700: "#4a5568",
-        900: "#1a202c",
+        500: "#94a3b8",
+        700: "#475569",
+        800: "#1e293b",
+        900: "#0f172a",
     },
     indigo: {
-        200: "#c3dafe",
-        400: "#7f9cf5",
-        600: "#5a67d8",
-        800: "#434190",
+        200: "#c7d2fe",
+        400: "#818cf8",
+        600: "#4f46e5",
+        800: "#3730a3",
     },
-    green: { 500: "#48bb78" },
-    red: { 500: "#f56565" },
-    yellow: { 500: "#ecc94b" },
+    green: { 500: "#22c55e" },
+    red: { 500: "#ef4444" },
+    yellow: { 500: "#eab308" },
 } as const;
 
 // ─── TYPOGRAPHY BASE ─────────────────────────────────────────
@@ -175,7 +176,7 @@ const createTokens = (mode: ThemeMode) => {
     return {
         bg: {
             default: isDark ? palette.gray[900] : palette.white,
-            muted: isDark ? palette.gray[700] : palette.gray[100],
+            muted: isDark ? palette.gray[800] : palette.gray[100],
         },
         fg: {
             default: isDark ? palette.white : palette.black,

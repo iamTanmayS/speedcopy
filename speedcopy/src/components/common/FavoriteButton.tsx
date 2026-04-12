@@ -43,7 +43,7 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({
     <Ionicons
       name={displayFavorite ? 'heart' : 'heart-outline'}
       size={iconSize}
-      color={displayFavorite ? theme.colors.status.error : theme.colors.fg.muted}
+      color={displayFavorite ? theme.colors.status.error : theme.colors.fg.default}
     />
   );
 

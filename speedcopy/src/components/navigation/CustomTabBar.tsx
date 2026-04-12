@@ -34,7 +34,7 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, 
 
     const bgColor = fillingAnim.interpolate({
         inputRange: [0, 1],
-        outputRange: [theme.colors.bg.default, '#000000'],
+        outputRange: [theme.colors.bg.default, theme.colors.fg.default],
     });
 
     const icons: Record<string, keyof typeof Ionicons.glyphMap> = {
@@ -89,7 +89,7 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, 
 
                     const textColor = fillingAnim.interpolate({
                         inputRange: [0, 1],
-                        outputRange: [isFocused ? '#ffffff' : '#000000', '#ffffff'],
+                        outputRange: [isFocused ? theme.colors.bg.default : theme.colors.fg.muted, theme.colors.bg.default],
                     });
 
                     return (
@@ -100,6 +100,7 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, 
                             iconName={icons[route.name]}
                             label={labels[route.name]}
                             textColor={textColor}
+                            theme={theme}
                         />
                     );
                 })}
@@ -108,7 +109,7 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, 
     );
 };
 
-const TabButton = ({ onPress, isFocused, iconName, label, textColor }: any) => {
+const TabButton = ({ onPress, isFocused, iconName, label, textColor, theme }: any) => {
     const scale = useRef(new Animated.Value(isFocused ? 1 : 0.95)).current;
     const bgAnim = useRef(new Animated.Value(isFocused ? 1 : 0)).current;
 
@@ -130,7 +131,7 @@ const TabButton = ({ onPress, isFocused, iconName, label, textColor }: any) => {
 
     const backgroundColor = bgAnim.interpolate({
         inputRange: [0, 1],
-        outputRange: ['transparent', '#000000']
+        outputRange: ['transparent', theme.colors.fg.default]
     });
 
     return (
@@ -147,7 +148,7 @@ const TabButton = ({ onPress, isFocused, iconName, label, textColor }: any) => {
                     <Ionicons 
                         name={iconName} 
                         size={20} 
-                        color={isFocused ? '#ffffff' : '#000000'} 
+                        color={isFocused ? theme.colors.bg.default : theme.colors.fg.muted} 
                     />
                 </View>
                 <Animated.Text style={[styles.label, { color: textColor }]}>
