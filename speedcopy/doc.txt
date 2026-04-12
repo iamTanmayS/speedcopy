@@ -1,0 +1,13 @@
+Running 17 checks on your project...
+16/17 checks passed. 1 checks failed. Possible issues detected:
+Use the --verbose flag to see more details about passed checks.
+
+✖ Check Expo config (app.json/ app.config.js) schema
+Error validating asset fields in D:\codes\speedcopy\speedcopy\app.json:
+ Field: Android.adaptiveIcon.foregroundImage - the file extension should match the content, but the file extension is .png while the file content at './assets/logo_square.png' is of type jpg.
+ Field: Android.adaptiveIcon.foregroundImage - field 'Android.adaptiveIcon.foregroundImage' should point to .png image but the file at './assets/logo_square.png' has type jpg.
+ Field: icon - the file extension should match the content, but the file extension is .png while the file content at './assets/logo_square.png' is of type jpg.
+ Field: icon - field 'icon' should point to .png image but the file at './assets/logo_square.png' has type jpg.
+Advice:
+Resolve schema errors in your app config. Learn more: https://docs.expo.dev/workflow/configuration/
+
