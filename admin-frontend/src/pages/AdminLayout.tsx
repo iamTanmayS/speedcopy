@@ -100,7 +100,7 @@ export const AdminLayout: React.FC = () => {
             </aside>
 
             <main className="main-content">
-                <div className="content-area animate-fade-in">
+                <div className="content-area">
                     <Outlet />
                 </div>
             </main>
