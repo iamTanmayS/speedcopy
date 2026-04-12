@@ -130,3 +130,91 @@ export interface ExportJob {
     requestedAt: ISODateString;
     completedAt?: ISODateString;
 }
+
+// ─── SLA Engine ───────────────────────────────────────────────────────────────
+
+export interface SLAPolicy {
+    id: UUID;
+    name: string;
+    category: 'printing' | 'gifting' | 'shopping';
+    deliveryMode: 'same_day' | 'next_day' | 'standard';
+    acceptanceWindowMins: number;
+    productionWindowMins: number;
+    dispatchWindowMins: number;
+    deliveryWindowMins: number;
+    isActive: boolean;
+}
+
+export interface SLAViolation {
+    id: UUID;
+    orderId: UUID;
+    policyId?: UUID;
+    violationType: string;
+    severity: 'low' | 'medium' | 'high';
+    breachedAt: ISODateString;
+    resolvedAt?: ISODateString;
+    resolutionNote?: string;
+}
+
+// ─── Support System ───────────────────────────────────────────────────────────
+
+export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
+export type TicketPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+
+export interface SupportTicket {
+    id: UUID;
+    ticketNumber: string;
+    subject: string;
+    description?: string;
+    status: TicketStatus;
+    priority: TicketPriority;
+    category?: string;
+    requesterId: UUID;
+    requesterType: 'CUSTOMER' | 'VENDOR' | 'DELIVERY_PARTNER';
+    assignedTo?: UUID;
+    orderId?: UUID;
+    lastRespondedAt?: ISODateString;
+    resolvedAt?: ISODateString;
+    createdAt: ISODateString;
+    updatedAt: ISODateString;
+}
+
+export interface TicketMessage {
+    id: UUID;
+    ticketId: UUID;
+    senderId: UUID;
+    message: string;
+    attachmentUrls: string[];
+    isInternal: boolean;
+    createdAt: ISODateString;
+}
+
+// ─── Delivery Partners ────────────────────────────────────────────────────────
+
+export interface DeliveryPartner {
+    id: UUID;
+    name: string;
+    phone?: string;
+    type: 'INTERNAL' | 'AGGREGATOR';
+    status: 'ACTIVE' | 'SUSPENDED';
+    currentCityId?: UUID;
+    vehicleType?: string;
+    payoutRatePerKm?: PaisaAmount;
+    basePayout?: PaisaAmount;
+    rating?: number;
+    totalDeliveries: number;
+    failureRate: Percentage;
+    isOnline: boolean;
+    lastLocationLat?: number;
+    lastLocationLng?: number;
+}
+
+// ─── Safety & Kill Switches ───────────────────────────────────────────────────
+
+export interface PlatformConfig {
+    key: string;
+    value: any;
+    description?: string;
+    updatedBy?: UUID;
+    updatedAt: ISODateString;
+}

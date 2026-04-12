@@ -11,12 +11,37 @@ import { listHubs, getHubDetail, createHub, updateHub, pauseHub, resumeHub, getG
 import { listPayouts, getVendorPayoutSummary, listSettlementBatches, createSettlementBatch, processSettlementBatch } from '../controllers/admin/admin.finance.controller.js';
 import { listSubAdmins, createSubAdmin, updateSubAdmin, deactivateSubAdmin } from '../controllers/admin/admin.subadmins.controller.js';
 import { listAuditLogs, createExportJob, listExportJobs, getExportJobStatus } from '../controllers/admin/admin.audit.controller.js';
+import { listSLAPolicies, listSLAAtRiskOrders, updateSLAPolicy } from '../controllers/admin/admin.sla.controller.js';
+import { listPlatformSafetyFlags, updateSafetyFlag, toggleHubStatus } from '../controllers/admin/admin.safety.controller.js';
+import { listTickets, getTicketDetail, addTicketMessage, updateTicket } from '../controllers/admin/admin.support.controller.js';
+import { listCoupons, createCoupon, toggleCoupon } from '../controllers/admin/admin.coupons.controller.js';
 
 const router = Router();
 router.use(authenticate);
 
 // Dashboard
 router.get('/dashboard', requirePermission('view_reports'), getAdminDashboard);
+
+// Coupons
+router.get('/coupons', requirePermission('view_financials'), listCoupons);
+router.post('/coupons', requirePermission('manage_sub_admins'), createCoupon);
+router.patch('/coupons/:id/toggle', requirePermission('manage_sub_admins'), toggleCoupon);
+
+// SLA Management
+router.get('/sla/policies', requirePermission('view_reports'), listSLAPolicies);
+router.get('/sla/at-risk', requirePermission('manage_orders'), listSLAAtRiskOrders);
+router.patch('/sla/policies/:id', requirePermission('manage_sub_admins'), updateSLAPolicy);
+
+// Support System
+router.get('/tickets', requirePermission('manage_orders'), listTickets);
+router.get('/tickets/:id', requirePermission('manage_orders'), getTicketDetail);
+router.post('/tickets/:id/messages', requirePermission('manage_orders'), addTicketMessage);
+router.patch('/tickets/:id', requirePermission('manage_orders'), updateTicket);
+
+// Platform Safety
+router.get('/safety/flags', requirePermission('view_reports'), listPlatformSafetyFlags);
+router.post('/safety/flags/:key', requirePermission('manage_sub_admins'), updateSafetyFlag);
+router.patch('/safety/hubs/:hubId/status', requirePermission('manage_hubs'), toggleHubStatus);
 
 // Users
 router.get('/users', requirePermission('manage_users'), listUsers);

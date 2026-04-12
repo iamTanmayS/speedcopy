@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Store, ShoppingCart, MapPin, Banknote, ShieldAlert, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { 
+    LayoutDashboard, Users, Store, ShoppingCart, MapPin, 
+    Banknote, ShieldAlert, LogOut, ChevronLeft, ChevronRight,
+    Clock, LifeBuoy, Zap, Tag, Box
+} from 'lucide-react';
 import './AdminLayout.css';
 
 const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
-    { name: 'Vendors', icon: Store, path: '/vendors' },
     { name: 'Orders', icon: ShoppingCart, path: '/orders' },
+    { name: 'Vendors', icon: Store, path: '/vendors' },
+    { name: 'SLAs', icon: Clock, path: '/sla' },
+    { name: 'Tickets', icon: LifeBuoy, path: '/tickets' },
+    { name: 'Finance', icon: Banknote, path: '/finance' },
+    { name: 'Coupons', icon: Tag, path: '/coupons' },
+    { name: 'Inventory', icon: Box, path: '/inventory' },
     { name: 'Hubs', icon: MapPin, path: '/hubs' },
     { name: 'Users', icon: Users, path: '/users' },
-    { name: 'Finance', icon: Banknote, path: '/finance' },
+    { name: 'Safety', icon: Zap, path: '/safety' },
     { name: 'Admin', icon: ShieldAlert, path: '/subadmins' },
 ];
 

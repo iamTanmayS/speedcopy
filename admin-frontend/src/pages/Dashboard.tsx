@@ -13,10 +13,10 @@ import {
 } from 'chart.js';
 import { Line, Bar } from 'react-chartjs-2';
 import { Card } from '../components/Card';
-import { Store, ShoppingCart, IndianRupee, MapPin, TrendingUp, AlertTriangle, CheckCircle, Activity } from 'lucide-react';
 import { apiFetch } from '../utils/api';
 import type { AdminOverviewDashboard, HubHealthSummary } from '../types/admin';
 import type { ApiSuccess } from '../types/shared';
+import { RefreshCcw, ShoppingCart, IndianRupee, TrendingUp, AlertTriangle, CheckCircle, Activity, ArrowUpRight, ArrowDownRight, Clock } from 'lucide-react';
 import './Dashboard.css';
 
 // Register Chart.js components
@@ -47,28 +47,39 @@ const formatCurrency = (paisa: number): string => {
 export const Dashboard: React.FC = () => {
     const [stats, setStats] = useState<AdminOverviewDashboard | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const fetchDashboard = async (silent = false) => {
+        if (!silent) setIsLoading(true);
+        else setIsRefreshing(true);
+        
+        try {
+            const response = await apiFetch<ApiSuccess<AdminOverviewDashboard>>('/api/admin/dashboard');
+            setStats(response.data);
+            setError(null);
+        } catch (err) {
+            console.error("Dashboard fetch error:", err);
+            setError('Failed to load dashboard data');
+        } finally {
+            setIsLoading(false);
+            setIsRefreshing(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchDashboard = async () => {
-            try {
-                const response = await apiFetch<ApiSuccess<AdminOverviewDashboard>>('/api/admin/dashboard');
-                setStats(response.data);
-            } catch (err) {
-                console.error("Dashboard fetch error:", err);
-                setError('Failed to load dashboard data');
-            } finally {
-                setIsLoading(false);
-            }
-        };
         fetchDashboard();
     }, []);
+
+    const handleRefresh = () => {
+        fetchDashboard(true);
+    };
 
     if (isLoading) {
         return (
             <div className="dashboard-loading">
                 <div className="loading-spinner-large" />
-                <p>Loading dashboard metrics...</p>
+                <p>Establishing secure link to platform...</p>
             </div>
         );
     }
@@ -78,20 +89,20 @@ export const Dashboard: React.FC = () => {
             <div className="dashboard-error">
                 <AlertTriangle size={32} />
                 <p>{error || 'No data available'}</p>
-                <button className="sc-button sc-button-primary sc-button-sm" onClick={() => window.location.reload()}>
-                    Retry
+                <button className="sc-button sc-button-primary sc-button-sm" onClick={() => fetchDashboard()}>
+                    Retry Connection
                 </button>
             </div>
         );
     }
 
-    // Safely extract values — guard against NaN/null/undefined
+    // Safely extract values
     const totalOrders = safeNum(stats.orders?.totalOrders);
     const netRevenue = safeNum(stats.revenue?.netRevenue);
     const grossRevenue = safeNum(stats.revenue?.grossMerchandiseValue);
-    const activeVendors = safeNum(stats.vendors?.activeVendors);
-    const avgAcceptanceTime = safeNum(stats.vendors?.avgAcceptanceTime);
     const completionRate = safeNum(stats.orders?.completionRatePercent);
+    const slaBreachRate = safeNum(stats.orders?.slaBreachRatePercent);
+    const refundRate = safeNum(stats.orders?.refundRatePercent);
     const hubHealth = stats.hubHealth || [];
 
     // Format date range
@@ -99,7 +110,7 @@ export const Dashboard: React.FC = () => {
     const dateEnd = stats.dateEnd ? new Date(stats.dateEnd).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
     const dateLabel = dateStart && dateEnd ? `${dateStart} – ${dateEnd}` : '';
 
-    // Weekly order trend (synthetic spread from totalOrders for visual — replace with real time-series if API provides)
+    // Weekly order trend (synthetic spread from totalOrders)
     const weekData = [0.8, 0.9, 1.1, 0.95, 1.05, 0.88, 1.0].map(factor =>
         Math.round(Math.max(0, totalOrders * factor * 0.14))
     );
@@ -185,13 +196,27 @@ export const Dashboard: React.FC = () => {
 
     return (
         <div className="dashboard-container">
-            {/* Period Header */}
-            {dateLabel && (
-                <div className="dashboard-period-badge">
-                    <Activity size={14} />
-                    <span>Reporting period: {dateLabel}</span>
+            <header className="dashboard-header">
+                <div className="header-left">
+                    <h1 className="page-title">Platform Overview</h1>
+                    {dateLabel && (
+                        <div className="dashboard-period-badge">
+                            <Activity size={14} />
+                            <span>{dateLabel}</span>
+                        </div>
+                    )}
                 </div>
-            )}
+                <div className="header-right">
+                    <button 
+                        className={`refresh-btn ${isRefreshing ? 'spinning' : ''}`} 
+                        onClick={handleRefresh}
+                        disabled={isRefreshing}
+                    >
+                        <RefreshCcw size={16} />
+                        <span>{isRefreshing ? 'Syncing...' : 'Sync Data'}</span>
+                    </button>
+                </div>
+            </header>
 
             {/* KPI Stat Cards */}
             <div className="stats-grid">
@@ -203,7 +228,7 @@ export const Dashboard: React.FC = () => {
                         <p className="stat-label">Total Orders</p>
                         <h3 className="stat-value">{totalOrders.toLocaleString('en-IN')}</h3>
                         <p className="stat-sub trend-positive">
-                            <TrendingUp size={12} /> {completionRate.toFixed(1)}% completion rate
+                            <TrendingUp size={12} /> {completionRate.toFixed(1)}% completion
                         </p>
                     </div>
                 </Card>
@@ -220,26 +245,30 @@ export const Dashboard: React.FC = () => {
                 </Card>
 
                 <Card className="stat-card">
-                    <div className="stat-icon-wrapper purple">
-                        <Store size={20} />
+                    <div className="stat-icon-wrapper orange">
+                        <Clock size={20} />
                     </div>
                     <div className="stat-content">
-                        <p className="stat-label">Active Vendors</p>
-                        <h3 className="stat-value">{activeVendors}</h3>
-                        <p className="stat-sub">
-                            {avgAcceptanceTime > 0 ? `${Math.round(avgAcceptanceTime)}m avg accept time` : 'No acceptance data'}
+                        <p className="stat-label">SLA Breach Rate</p>
+                        <h3 className="stat-value">{slaBreachRate.toFixed(1)}%</h3>
+                        <p className={`stat-sub ${slaBreachRate > 5 ? 'trend-negative' : 'trend-positive'}`}>
+                            {slaBreachRate > 5 ? <AlertTriangle size={12} /> : <CheckCircle size={12} />} 
+                            {slaBreachRate > 5 ? 'Critical' : 'Healthy'}
                         </p>
                     </div>
                 </Card>
 
                 <Card className="stat-card">
-                    <div className="stat-icon-wrapper orange">
-                        <MapPin size={20} />
+                    <div className="stat-icon-wrapper red">
+                        <Activity size={20} />
                     </div>
                     <div className="stat-content">
-                        <p className="stat-label">Hubs Online</p>
-                        <h3 className="stat-value">{hubHealth.length}</h3>
-                        <p className="stat-sub">{avgCapacityUtil}% avg capacity</p>
+                        <p className="stat-label">Refund Rate</p>
+                        <h3 className="stat-value">{refundRate.toFixed(1)}%</h3>
+                        <p className={`stat-sub ${refundRate > 2 ? 'trend-negative' : 'trend-positive'}`}>
+                            {refundRate > 2 ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+                            {'Target < 2.0%'}
+                        </p>
                     </div>
                 </Card>
             </div>
@@ -280,7 +309,7 @@ export const Dashboard: React.FC = () => {
                         {totalSlaRisk > 0 ? (
                             <div className="alert-item error">
                                 <AlertTriangle size={16} style={{ marginRight: 8, flexShrink: 0 }} />
-                                <span><strong>{totalSlaRisk}</strong> orders at SLA risk across {hubHealth.length} hubs</span>
+                                <span><strong>{totalSlaRisk}</strong> orders at SLA risk across hubs</span>
                             </div>
                         ) : (
                             <div className="alert-item success">
@@ -294,33 +323,14 @@ export const Dashboard: React.FC = () => {
                                 <span>High average capacity utilization: <strong>{avgCapacityUtil}%</strong></span>
                             </div>
                         )}
-                        {safeNum(stats.orders?.cancellationRatePercent) > 10 && (
-                            <div className="alert-item warning" style={{ marginTop: 8 }}>
-                                <AlertTriangle size={16} style={{ marginRight: 8, flexShrink: 0 }} />
-                                <span>Elevated cancellation rate: <strong>{safeNum(stats.orders?.cancellationRatePercent).toFixed(1)}%</strong></span>
-                            </div>
-                        )}
                     </div>
                 </Card>
 
                 <Card className="chart-card">
                     <div className="chart-card-header">
-                        <h4>Revenue Breakdown</h4>
+                        <h4>Financial Overview</h4>
                     </div>
                     <div className="revenue-breakdown">
-                        <div className="rev-row">
-                            <span className="rev-label">Gross Merchandise Value</span>
-                            <span className="rev-value">{formatCurrency(grossRevenue)}</span>
-                        </div>
-                        <div className="rev-row">
-                            <span className="rev-label">Discounts Given</span>
-                            <span className="rev-value discount">−{formatCurrency(safeNum(stats.revenue?.discountsGiven))}</span>
-                        </div>
-                        <div className="rev-row">
-                            <span className="rev-label">COGS</span>
-                            <span className="rev-value discount">−{formatCurrency(safeNum(stats.revenue?.cogs))}</span>
-                        </div>
-                        <div className="rev-divider" />
                         <div className="rev-row total">
                             <span className="rev-label">Net Revenue</span>
                             <span className="rev-value highlight">{formatCurrency(netRevenue)}</span>

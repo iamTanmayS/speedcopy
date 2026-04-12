@@ -1,36 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { apiFetch } from '../utils/api';
-import { DataTable, type Column } from '../components/DataTable';
-import { Button } from '../components/Button';
-import { Banknote, RefreshCw } from 'lucide-react';
+import { Card } from '../components/Card';
+import { Banknote, RefreshCw, ArrowLeftRight, CheckCircle, XCircle } from 'lucide-react';
 import './ListPage.css';
 
-interface Batch {
-    id: string;
-    batch_reference?: string;
-    batchReference?: string;
-    gross_amount?: number;
-    grossAmount?: number;
-    total_platform_fee?: number;
-    totalPlatformFee?: number;
-    net_amount?: number;
-    netAmount?: number;
-    status: string;
-    created_at?: string;
-    createdAt?: string;
-}
-
 export const FinanceList: React.FC = () => {
-    const [batches, setBatches] = useState<Batch[]>([]);
+    const [activeTab, setActiveTab] = useState<'payouts' | 'refunds'>('payouts');
+    const [batches, setBatches] = useState<any[]>([]);
+    const [refunds, setRefunds] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => { fetchBatches(); }, []);
-
-    const fetchBatches = async () => {
+    const fetchData = async () => {
         setIsLoading(true);
         try {
-            const res = await apiFetch<any>('/api/admin/payouts/batches');
-            setBatches(res.data.items || res.data || []);
+            if (activeTab === 'payouts') {
+                const res = await apiFetch<any>('/api/admin/payouts/batches');
+                setBatches(res.data.items || res.data || []);
+            } else {
+                const res = await apiFetch<any>('/api/admin/refunds');
+                setRefunds(res.data.items || res.data || []);
+            }
         } catch (e) {
             console.error(e);
         } finally {
@@ -38,58 +27,146 @@ export const FinanceList: React.FC = () => {
         }
     };
 
-    const getStatusBadge = (status: string) => {
-        switch ((status || '').toLowerCase()) {
-            case 'paid': return 'badge-success';
-            case 'failed': return 'badge-error';
-            default: return 'badge-warning';
+    useEffect(() => { fetchData(); }, [activeTab]);
+
+    const handleReviewRefund = async (id: string, action: 'APPROVE' | 'REJECT') => {
+        try {
+            await apiFetch(`/api/admin/refunds/${id}/review`, {
+                method: 'POST',
+                body: JSON.stringify({ action, reason: 'Reviewed by Admin' })
+            });
+            fetchData();
+        } catch (e) {
+            console.error(e);
         }
     };
 
-    const formatAmount = (paisa: number | undefined) => {
-        if (paisa === undefined || paisa === null || isNaN(Number(paisa))) return '—';
-        return `₹${(Number(paisa) / 100).toLocaleString('en-IN')}`;
-    };
+    const formatAmount = (paisa: number) => `₹${(paisa / 100).toLocaleString('en-IN')}`;
 
-    const columns: Column<Batch>[] = [
-        { header: 'Batch Ref', accessor: (b) => <span className="mono-text">{b.batchReference || b.batch_reference || '—'}</span> },
-        { header: 'Gross', accessor: (b) => formatAmount(b.grossAmount ?? b.gross_amount) },
-        { header: 'Platform Fee', accessor: (b) => formatAmount(b.totalPlatformFee ?? b.total_platform_fee) },
-        { header: 'Net Payout', accessor: (b) => <strong>{formatAmount(b.netAmount ?? b.net_amount)}</strong> },
-        { header: 'Created', accessor: (b) => {
-            const d = b.createdAt || b.created_at;
-            return d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
-        }},
-        {
-            header: 'Status',
-            accessor: (b) => (
-                <span className={`badge ${getStatusBadge(b.status)}`}>
-                    {b.status || '—'}
-                </span>
-            )
-        }
-    ];
+    if (isLoading && (batches.length === 0 && refunds.length === 0)) {
+        return <div className="loading-container">Loading financials...</div>;
+    }
 
     return (
-        <div className="list-page">
-            <div className="list-page-header">
-                <div className="list-page-title">
-                    <div className="list-page-icon green">
-                        <Banknote size={20} />
-                    </div>
-                    <div>
-                        <h3>Settlement Batches</h3>
-                        <p className="list-page-subtitle">Vendor payout settlement records</p>
-                    </div>
+        <div className="admin-page">
+            <header className="page-header">
+                <div className="header-left">
+                    <h1 className="page-title">Financial Ledger & Settlements</h1>
+                    <p className="page-subtitle">Manage vendor payouts and customer refund approvals</p>
                 </div>
-                <div className="list-page-actions">
-                    <Button variant="secondary" onClick={fetchBatches}>
-                        <RefreshCw size={14} />
-                        <span style={{ marginLeft: 6 }}>Refresh</span>
-                    </Button>
+                <div className="header-right">
+                    <button className="refresh-btn" onClick={fetchData}>
+                        <RefreshCw size={16} />
+                        <span>Refresh</span>
+                    </button>
                 </div>
+            </header>
+
+            <div className="tab-control mb-6">
+                <button 
+                    className={`tab-btn ${activeTab === 'payouts' ? 'active' : ''}`} 
+                    onClick={() => setActiveTab('payouts')}
+                >
+                    <Banknote size={16} />
+                    <span>Settlement Batches</span>
+                </button>
+                <button 
+                    className={`tab-btn ${activeTab === 'refunds' ? 'active' : ''}`} 
+                    onClick={() => setActiveTab('refunds')}
+                >
+                    <ArrowLeftRight size={16} />
+                    <span>Refund Requests</span>
+                </button>
             </div>
-            <DataTable data={batches} columns={columns} isLoading={isLoading} />
+
+            {activeTab === 'payouts' ? (
+                <Card className="card p-0 overflow-hidden">
+                    <table className="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Batch Ref</th>
+                                <th>Gross Amount</th>
+                                <th>Platform Fee</th>
+                                <th>Net Payout</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {batches.map((b) => (
+                                <tr key={b.id}>
+                                    <td><span className="mono-text">{b.batchReference || b.batch_reference || '—'}</span></td>
+                                    <td>{formatAmount(b.grossAmount || b.gross_amount || 0)}</td>
+                                    <td>{formatAmount(b.totalPlatformFee || b.total_platform_fee || 0)}</td>
+                                    <td><strong>{formatAmount(b.netAmount || b.net_amount || 0)}</strong></td>
+                                    <td>
+                                        <span className={`status-pill ${(b.status || '').toLowerCase()}`}>
+                                            {b.status || 'PENDING'}
+                                        </span>
+                                    </td>
+                                    <td>{new Date(b.createdAt || b.created_at).toLocaleDateString()}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </Card>
+            ) : (
+                <Card className="card p-0 overflow-hidden">
+                    <table className="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Customer / Order</th>
+                                <th>Amount</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {refunds.map((r) => (
+                                <tr key={r.id}>
+                                    <td>
+                                        <strong>{r.user_name || 'Customer'}</strong>
+                                        <div className="text-muted-sm">Order #{r.order_number}</div>
+                                    </td>
+                                    <td><strong className="text-error">{formatAmount(r.amount_paisa)}</strong></td>
+                                    <td>{r.reason || 'General Refund'}</td>
+                                    <td>
+                                        <span className={`status-pill ${(r.status || '').toLowerCase()}`}>
+                                            {r.status || 'PENDING'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {r.status === 'PENDING' && (
+                                            <div className="action-group">
+                                                <button 
+                                                    className="icon-btn text-success" 
+                                                    onClick={() => handleReviewRefund(r.id, 'APPROVE')}
+                                                    title="Approve Refund"
+                                                >
+                                                    <CheckCircle size={18} />
+                                                </button>
+                                                <button 
+                                                    className="icon-btn text-error ml-2" 
+                                                    onClick={() => handleReviewRefund(r.id, 'REJECT')}
+                                                    title="Reject Refund"
+                                                >
+                                                    <XCircle size={18} />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                            {refunds.length === 0 && (
+                                <tr>
+                                    <td colSpan={5} className="text-center py-8 text-muted">No pending refund requests</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </Card>
+            )}
         </div>
     );
 };

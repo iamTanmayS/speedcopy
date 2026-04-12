@@ -5,7 +5,9 @@ const { Pool } = pg;
 
 const pool = new Pool({
     connectionString: env.database_url,
+    ssl: env.database_url.includes('localhost') || env.database_url.includes('127.0.0.1') 
+        ? false 
+        : { rejectUnauthorized: false }
 });
 
-console.log(env.database_url)
 export default pool;

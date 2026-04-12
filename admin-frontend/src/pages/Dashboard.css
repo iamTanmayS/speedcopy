@@ -2,6 +2,17 @@
   max-width: 1400px;
 }
 
+.dashboard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.header-left .page-title {
+  margin-bottom: 8px;
+}
+
 .dashboard-period-badge {
   display: inline-flex;
   align-items: center;
@@ -13,7 +24,6 @@
   border-radius: var(--radius-pill);
   font-size: 12px;
   font-weight: 600;
-  margin-bottom: 24px;
   letter-spacing: 0.01em;
 }
 
