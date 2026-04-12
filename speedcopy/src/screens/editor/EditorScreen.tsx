@@ -40,7 +40,7 @@ export const EditorScreen = ({ navigation }: any) => {
   // EditorScreen is 2 levels deep: EditorScreen → HomeStack → MainTabNavigator
   // We must go up 2 levels to update the tab navigator that CustomTabBar reads from.
   useEffect(() => {
-    const tabNav = navigation.getParent?.()?.getParent?.();
+    const tabNav = navigation.getParent?.();
     tabNav?.setOptions({ tabBarStyle: { display: 'none' } });
     return () => {
       tabNav?.setOptions({ tabBarStyle: undefined });

@@ -7,6 +7,8 @@ import { useTheme } from '../../../theme';
 import { ScreenWrapper } from '../../components/common/ScreenWrapper';
 import { RecentlyViewed } from '../../components/common/RecentlyViewed';
 import { NewArrivals } from '../../components/common/NewArrivals';
+import { SearchArea } from '../../components/common/SearchArea';
+import { SearchResultsList } from '../../components/common/SearchResultsList';
 import { useCatalogStore } from '../../state_mgmt/store/catalogStore';
 import { useWishlistQuery, useToggleWishlistMutation } from '../../api/wishlist.api';
 import type { Product } from '../../types/catalog';
@@ -85,70 +87,79 @@ export const ShoppingHomeScreen = ({ navigation }: any) => {
       contentContainerStyle={styles.scrollContent}
     >
       <View style={styles.searchRow}>
-        <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#94a3b8" />
-          <Text style={{ color: '#94a3b8', marginLeft: 8, fontSize: 13 }}>Search</Text>
-        </View>
-        <TouchableOpacity style={styles.filterBtn}>
-          <Ionicons name="options-outline" size={20} color="#fff" />
-        </TouchableOpacity>
+        <SearchArea
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder="Search products"
+          onFilterPress={() => console.log('Filter Pressed')}
+        />
       </View>
 
-      <View style={styles.bannerContainer}>
-         {/* Using generic blue gradient styled similarly to mockup */}
-         <View style={[styles.banner, { backgroundColor: '#1e81b0' }]}>
-           <Text style={styles.bannerLight}>Free Shipping</Text>
-           <Text style={styles.bannerSmall}>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</Text>
-           <TouchableOpacity style={styles.bannerBtn}>
-             <Text style={styles.bannerBtnText}>Shop Now</Text>
-           </TouchableOpacity>
-         </View>
-      </View>
+      {searchQuery.trim().length > 0 ? (
+        <SearchResultsList
+          searchQuery={searchQuery}
+          sourceProducts={stationeryProducts}
+          onProductPress={handleProductPress}
+        />
+      ) : (
+        <>
+          <View style={styles.bannerContainer}>
+             {/* Using generic blue gradient styled similarly to mockup */}
+             <View style={[styles.banner, { backgroundColor: '#1e81b0' }]}>
+               <Text style={styles.bannerLight}>Free Shipping</Text>
+               <Text style={styles.bannerSmall}>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</Text>
+               <TouchableOpacity style={styles.bannerBtn}>
+                 <Text style={styles.bannerBtnText}>Shop Now</Text>
+               </TouchableOpacity>
+             </View>
+          </View>
 
-      {/* Categories */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.categoryScroll}
-      >
-        <TouchableOpacity style={styles.categoryBadge} onPress={() => {}}>
-           <View style={[styles.categoryIconBox, { backgroundColor: '#e2e8f0' }]} />
-           <Text style={styles.categoryName}>All</Text>
-        </TouchableOpacity>
-        
-        {stationerySubCategories.map((sc, idx) => (
-          <TouchableOpacity
-            key={sc.id}
-            style={styles.categoryBadge}
-            onPress={() =>
-              navigation.navigate('ProductList', {
-                categoryId: stationeryCategory?.id ?? '',
-                subCategoryId: sc.id,
-              })
-            }
+          {/* Categories */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoryScroll}
           >
-            <Image 
-               source={{ uri: `https://picsum.photos/seed/${sc.id}/300/300` }}
-               style={styles.categoryIconBox}
-            />
-            <Text style={styles.categoryName} numberOfLines={2}>
-              {sc.title}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+            <TouchableOpacity style={styles.categoryBadge} onPress={() => {}}>
+               <View style={[styles.categoryIconBox, { backgroundColor: '#e2e8f0' }]} />
+               <Text style={styles.categoryName}>All</Text>
+            </TouchableOpacity>
+            
+            {stationerySubCategories.map((sc, idx) => (
+              <TouchableOpacity
+                key={sc.id}
+                style={styles.categoryBadge}
+                onPress={() =>
+                  navigation.navigate('ProductList', {
+                    categoryId: stationeryCategory?.id ?? '',
+                    subCategoryId: sc.id,
+                  })
+                }
+              >
+                <Image 
+                   source={{ uri: `https://picsum.photos/seed/${sc.id}/300/300` }}
+                   style={styles.categoryIconBox}
+                />
+                <Text style={styles.categoryName} numberOfLines={2}>
+                  {sc.title}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
 
-      <RecentlyViewed
-        products={recentProducts as any}
-        onProductPress={handleProductPress}
-        onLikePress={handleToggleWishlist}
-      />
+          <RecentlyViewed
+            products={recentProducts as any}
+            onProductPress={handleProductPress}
+            onLikePress={handleToggleWishlist}
+          />
 
-      <NewArrivals
-        products={newArrivalProducts as any}
-        onProductPress={handleProductPress}
-        onLikePress={handleToggleWishlist}
-      />
+          <NewArrivals
+            products={newArrivalProducts as any}
+            onProductPress={handleProductPress}
+            onLikePress={handleToggleWishlist}
+          />
+        </>
+      )}
     </ScreenWrapper>
   );
 };
@@ -157,16 +168,7 @@ const styles = StyleSheet.create({
   header: { alignItems: 'center', paddingVertical: 12 },
   headerTitle: { fontSize: 16, fontWeight: '700' },
   scrollContent: { paddingHorizontal: 16, paddingTop: 10 },
-  searchRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 20 },
-  searchContainer: {
-    flex: 1, flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#fff', borderRadius: 12, paddingHorizontal: 14, height: 44,
-    borderWidth: 1, borderColor: '#e2e8f0',
-  },
-  filterBtn: {
-    width: 44, height: 44, borderRadius: 12,
-    backgroundColor: '#000', justifyContent: 'center', alignItems: 'center',
-  },
+  searchRow: { marginBottom: 20 },
   bannerContainer: { marginBottom: 24 },
   banner: {
     width: '100%', height: 160, borderRadius: 16, padding: 20,

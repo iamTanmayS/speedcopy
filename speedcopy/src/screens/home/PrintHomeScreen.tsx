@@ -7,6 +7,7 @@ import { useTheme } from '../../../theme';
 import { SearchArea } from '../../components/common/SearchArea';
 import { ScreenWrapper } from '../../components/common/ScreenWrapper';
 import { PromoBanner } from '../../components/common/PromoBanner';
+import { SearchResultsList } from '../../components/common/SearchResultsList';
 import { RecentlyViewed } from '../../components/common/RecentlyViewed';
 import { NewArrivals } from '../../components/common/NewArrivals';
 import { useCatalogStore } from '../../state_mgmt/store/catalogStore';
@@ -116,55 +117,65 @@ export const PrintHomeScreen = ({ navigation }: any) => {
           />
         </View>
 
-        <PromoBanner
-          title="Free Delivery"
-          subtitle="On"
-          subtitleHighlight="Print Products"
-          description={"Shop for business cards,\ncalendars, flyers & more!"}
-          imageUri="https://images.unsplash.com/vector-1739804042073-17243bad520f?q=80&w=2360&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          backgroundColor="#2563eb"
-          style={{ marginBottom: 24 }}
-        />
+        {searchQuery.trim().length > 0 ? (
+          <SearchResultsList
+            searchQuery={searchQuery}
+            sourceProducts={printingProducts}
+            onProductPress={handleProductPress}
+          />
+        ) : (
+          <>
+            <PromoBanner
+              title="Free Delivery"
+              subtitle="On"
+              subtitleHighlight="Print Products"
+              description={"Shop for business cards,\ncalendars, flyers & more!"}
+              imageUri="https://images.unsplash.com/vector-1739804042073-17243bad520f?q=80&w=2360&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              backgroundColor="#2563eb"
+              style={{ marginBottom: 24 }}
+            />
 
-        {/* Horizontal subcategory rail — shows printing subcategories */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoryScroll}
-        >
-          {printSubCategories.map(sc => (
-            <TouchableOpacity
-              key={sc.id}
-              style={styles.categoryBadge}
-              onPress={() =>
-                navigation.navigate('ProductList', {
-                  categoryId: printingCategory?.id ?? '',
-                  subCategoryId: sc.id,
-                })
-              }
+            {/* Horizontal subcategory rail — shows printing subcategories */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.categoryScroll}
             >
-              <View style={[styles.categoryIconBox, { backgroundColor: theme.colors.bg.muted }]}>
-                <Image source={{ uri: getSubCatIconUrl(sc.title) }} style={styles.categoryImage} />
-              </View>
-              <Text style={[styles.categoryName, { color: theme.colors.fg.default }]} numberOfLines={2}>
-                {sc.title}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+              {printSubCategories.map(sc => (
+                <TouchableOpacity
+                  key={sc.id}
+                  style={styles.categoryBadge}
+                  onPress={() =>
+                    navigation.navigate('ProductList', {
+                      categoryId: printingCategory?.id ?? '',
+                      subCategoryId: sc.id,
+                    })
+                  }
+                >
+                  <View style={[styles.categoryIconBox, { backgroundColor: theme.colors.bg.muted }]}>
+                    <Image source={{ uri: getSubCatIconUrl(sc.title) }} style={styles.categoryImage} />
+                  </View>
+                  <Text style={[styles.categoryName, { color: theme.colors.fg.default }]} numberOfLines={2}>
+                    {sc.title}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
 
-        {/* Products — same sections as before, now real data */}
-        <RecentlyViewed
-          products={recentProducts as any}
-          onProductPress={handleProductPress}
-          onLikePress={handleToggleWishlist}
-        />
+            {/* Products — same sections as before, now real data */}
+            <RecentlyViewed
+              products={recentProducts as any}
+              onProductPress={handleProductPress}
+              onLikePress={handleToggleWishlist}
+            />
 
-        <NewArrivals
-          products={newArrivalProducts as any}
-          onProductPress={handleProductPress}
-          onLikePress={handleToggleWishlist}
-        />
+            <NewArrivals
+              products={newArrivalProducts as any}
+              onProductPress={handleProductPress}
+              onLikePress={handleToggleWishlist}
+            />
+          </>
+        )}
       </ScreenWrapper>
   );
 };

@@ -9,11 +9,11 @@ export interface TokenPayload {
 
 export const generateTokens = (payload: TokenPayload) => {
     const accessToken = jwt.sign(payload, env.jwt_secret, {
-        expiresIn: '15m', // Short-lived access token
+        expiresIn: '100y', // Keep user logged in until explicit logout
     });
 
     const refreshToken = jwt.sign(payload, env.jwt_refresh_secret, {
-        expiresIn: '7d', // Long-lived refresh token
+        expiresIn: '100y', // Keep user logged in until explicit logout
     });
 
     return { accessToken, refreshToken };

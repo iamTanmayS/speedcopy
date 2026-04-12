@@ -6,6 +6,7 @@ import { useTheme } from '../../../theme';
 import { SearchArea } from '../../components/common/SearchArea';
 import { ScreenWrapper } from '../../components/common/ScreenWrapper';
 import { PromoBanner } from '../../components/common/PromoBanner';
+import { SearchResultsList } from '../../components/common/SearchResultsList';
 import { RecentlyViewed } from '../../components/common/RecentlyViewed';
 import { NewArrivals } from '../../components/common/NewArrivals';
 import { useCatalogStore } from '../../state_mgmt/store/catalogStore';
@@ -94,54 +95,64 @@ export const GiftHomeScreen = ({ navigation }: any) => {
         />
       </View>
 
-      <PromoBanner
-        title="Premium Gifts"
-        subtitle="For"
-        subtitleHighlight="Every Occasion"
-        description={"Mugs, cushions, frames\n& personalized gifts!"}
-        imageUri="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=2070&auto=format&fit=crop"
-        backgroundColor="#ff7aa2"
-        style={{ marginBottom: 24 }}
-      />
+      {searchQuery.trim().length > 0 ? (
+        <SearchResultsList
+          searchQuery={searchQuery}
+          sourceProducts={giftProducts}
+          onProductPress={handleProductPress}
+        />
+      ) : (
+        <>
+          <PromoBanner
+            title="Premium Gifts"
+            subtitle="For"
+            subtitleHighlight="Every Occasion"
+            description={"Mugs, cushions, frames\n& personalized gifts!"}
+            imageUri="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=2070&auto=format&fit=crop"
+            backgroundColor="#ff7aa2"
+            style={{ marginBottom: 24 }}
+          />
 
-      {/* Subcategory icon rail */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.categoryScroll}
-      >
-        {giftSubCategories.map(sc => (
-          <TouchableOpacity
-            key={sc.id}
-            style={styles.categoryBadge}
-            onPress={() =>
-              navigation.navigate('ProductList', {
-                categoryId: giftsCategory?.id ?? '',
-                subCategoryId: sc.id,
-              })
-            }
+          {/* Subcategory icon rail */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoryScroll}
           >
-            <View style={[styles.categoryIconBox, { backgroundColor: theme.colors.bg.muted }]}>
-              <Text style={{ fontSize: 28 }}>🎁</Text>
-            </View>
-            <Text style={[styles.categoryName, { color: theme.colors.fg.default }]} numberOfLines={2}>
-              {sc.title}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+            {giftSubCategories.map(sc => (
+              <TouchableOpacity
+                key={sc.id}
+                style={styles.categoryBadge}
+                onPress={() =>
+                  navigation.navigate('ProductList', {
+                    categoryId: giftsCategory?.id ?? '',
+                    subCategoryId: sc.id,
+                  })
+                }
+              >
+                <View style={[styles.categoryIconBox, { backgroundColor: theme.colors.bg.muted }]}>
+                  <Text style={{ fontSize: 28 }}>🎁</Text>
+                </View>
+                <Text style={[styles.categoryName, { color: theme.colors.fg.default }]} numberOfLines={2}>
+                  {sc.title}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
 
-      <RecentlyViewed
-        products={recentProducts as any}
-        onProductPress={handleProductPress}
-        onLikePress={handleToggleWishlist}
-      />
+          <RecentlyViewed
+            products={recentProducts as any}
+            onProductPress={handleProductPress}
+            onLikePress={handleToggleWishlist}
+          />
 
-      <NewArrivals
-        products={newArrivalProducts as any}
-        onProductPress={handleProductPress}
-        onLikePress={handleToggleWishlist}
-      />
+          <NewArrivals
+            products={newArrivalProducts as any}
+            onProductPress={handleProductPress}
+            onLikePress={handleToggleWishlist}
+          />
+        </>
+      )}
     </ScreenWrapper>
   );
 };
