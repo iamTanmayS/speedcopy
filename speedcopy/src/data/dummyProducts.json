@@ -1,0 +1,158 @@
+{
+  "categories": [
+    {
+      "id": "all",
+      "name": "All",
+      "image": null,
+      "isAll": true
+    },
+    {
+      "id": "business_cards",
+      "name": "Business\nCards",
+      "image": "https://picsum.photos/seed/bc_cat/200/200"
+    },
+    {
+      "id": "flyers",
+      "name": "Flyers &\nBrochures",
+      "image": "https://picsum.photos/seed/fl_cat/200/200"
+    },
+    {
+      "id": "posters",
+      "name": "Posters",
+      "image": "https://picsum.photos/seed/po_cat/200/200"
+    }
+  ],
+  "products": [
+    {
+      "id": "prod_1",
+      "title": "Business Cards",
+      "description": "Premium quality professional business cards",
+      "basePrice": 350,
+      "currency": "₹",
+      "mrp": 450,
+      "discountPercentage": 22,
+      "discountTag": "30% OFF",
+      "imageUrl": "https://picsum.photos/seed/bc1/300/200",
+      "categoryId": "business_cards",
+      "isNewArrival": true,
+      "isTrending": true,
+      "isRecentlyViewed": false,
+      "printOptionsConfig": {
+        "paperSizes": ["Standard 3.5\" x 2\""],
+        "paperTypes": ["300gsm Matte", "300gsm Glossy", "Textured Premium"],
+        "colorOptions": ["Full Color Both Sides", "Full Color Front, B&W Back"],
+        "lamination": ["Soft Touch", "Gloss", "Matte"]
+      },
+      "deliveryPackages": [
+        { "name": "Standard", "estimatedDays": 5, "price": 40 },
+        { "name": "Express", "estimatedDays": 2, "price": 120 }
+      ],
+      "addOns": [
+        { "id": "addon_emboss", "name": "Embossing", "price": 100, "description": "Raised lettering" }
+      ]
+    },
+    {
+      "id": "prod_2",
+      "title": "Invitation Cards",
+      "description": "Elegant personalized invitation cards for all events.",
+      "basePrice": 550,
+      "currency": "₹",
+      "imageUrl": "https://picsum.photos/seed/inv1/300/200",
+      "categoryId": "invitations",
+      "isNewArrival": true,
+      "isTrending": false,
+      "isRecentlyViewed": false,
+      "printOptionsConfig": {
+        "paperSizes": ["5\" x 7\"", "Square 6\" x 6\""],
+        "paperTypes": ["Premium Linen", "Pearl Shimmer"],
+        "colorOptions": ["Full Color Both Sides"]
+      },
+      "deliveryPackages": [
+        { "name": "Standard", "estimatedDays": 5, "price": 40 }
+      ]
+    },
+    {
+      "id": "prod_3",
+      "title": "Photo Prints",
+      "description": "High resolution photo prints capturing your memories.",
+      "basePrice": 550,
+      "currency": "₹",
+      "imageUrl": "https://picsum.photos/seed/ph1/300/200",
+      "categoryId": "photo_prints",
+      "isNewArrival": true,
+      "isTrending": true,
+      "isRecentlyViewed": false,
+      "printOptionsConfig": {
+        "paperSizes": ["4\" x 6\"", "5\" x 7\"", "8\" x 10\""],
+        "paperTypes": ["High Gloss", "Satin Matte"],
+        "colorOptions": ["Full Color"]
+      },
+      "deliveryPackages": [
+        { "name": "Standard", "estimatedDays": 3, "price": 50 }
+      ]
+    },
+    {
+      "id": "prod_4",
+      "title": "Flyers and Brouchres",
+      "description": "Bulk flyers for your marketing campaigns.",
+      "basePrice": 250,
+      "currency": "₹",
+      "mrp": 450,
+      "discountTag": "",
+      "imageUrl": "https://picsum.photos/seed/fly1/300/200",
+      "categoryId": "flyers",
+      "isNewArrival": true,
+      "isTrending": false,
+      "isRecentlyViewed": false,
+      "printOptionsConfig": {
+        "paperSizes": ["A4", "A5", "DL format"],
+        "paperTypes": ["130gsm Gloss", "170gsm Matte"],
+        "colorOptions": ["Full Color Both Sides"]
+      },
+      "deliveryPackages": [
+        { "name": "Standard", "estimatedDays": 5, "price": 60 }
+      ]
+    },
+    {
+      "id": "prod_5",
+      "title": "Custom Notebook",
+      "description": "Personalized leather spiral notebooks.",
+      "basePrice": 300,
+      "currency": "₹",
+      "imageUrl": "https://picsum.photos/seed/book1/300/400",
+      "categoryId": "gifts",
+      "isNewArrival": false,
+      "isTrending": false,
+      "isRecentlyViewed": true,
+      "printOptionsConfig": {
+        "paperSizes": ["A5"],
+        "paperTypes": ["80gsm Ruled", "80gsm Blank"],
+        "colorOptions": ["B&W Pages"],
+        "bindingOptions": ["Spiral", "Leather Bound"]
+      },
+      "deliveryPackages": [
+        { "name": "Standard", "estimatedDays": 4, "price": 50 }
+      ]
+    },
+    {
+      "id": "prod_6",
+      "title": "Wooden Frame",
+      "description": "Classic wooden photo frame.",
+      "basePrice": 450,
+      "currency": "₹",
+      "imageUrl": "https://picsum.photos/seed/frame1/300/400",
+      "categoryId": "gifts",
+      "isNewArrival": false,
+      "isTrending": false,
+      "isRecentlyViewed": true,
+      "printOptionsConfig": {
+        "paperSizes": ["8\" x 10\" Frame"],
+        "paperTypes": [],
+        "colorOptions": []
+      },
+      "deliveryPackages": [
+        { "name": "Standard", "estimatedDays": 5, "price": 70 }
+      ]
+    }
+  ]
+}

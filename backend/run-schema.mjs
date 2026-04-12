@@ -9,8 +9,16 @@ async function run() {
     try {
         await client.connect();
         console.log('Connected to database.');
+        
         const sql = fs.readFileSync('src/db/migrations/full_schema.sql', 'utf8');
         await client.query(sql);
+
+        const sql2 = fs.readFileSync('src/db/migrations/005_catalog_pricing_schema.sql', 'utf8');
+        await client.query(sql2);
+
+        const sql3 = fs.readFileSync('src/db/migrations/006_wishlist_schema.sql', 'utf8');
+        await client.query(sql3);
+        
         console.log('Schema applied successfully.');
     } catch (err) {
         console.error('Error applying schema:', err.message);

@@ -1,41 +1,33 @@
-import React, { useRef } from 'react';
-import { Animated, Pressable, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from './theme';
+import { RootNavigator } from './src/navigation/RootNavigator';
+import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { queryClient } from './src/api/queryClient';
+import { useAuthStore } from './src/state_mgmt/store/authStore';
 
 export default function App() {
-  const scale = useRef(new Animated.Value(1)).current;
+  const { fetchDevToken } = useAuthStore();
 
-  const onPressIn = () => {
-    Animated.spring(scale, {
-      toValue: 0.9,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const onPressOut = () => {
-    Animated.spring(scale, {
-      toValue: 1,
-      useNativeDriver: true,
-    }).start();
-  };
+  useEffect(() => {
+    // Only auto-fetch a dev token in development — never in production builds
+    if (__DEV__) {
+      fetchDevToken();
+    }
+  }, []);
 
   return (
-    <Pressable onPressIn={onPressIn} onPressOut={onPressOut}>
-      <Animated.View
-        style={[
-          styles.box,
-          { transform: [{ scale }] },
-        ]}
-      />
-    </Pressable>
+    <SafeAreaProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <NavigationContainer>
+            <RootNavigator />
+            <StatusBar style="auto" />
+          </NavigationContainer>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  box: {
-    width: 100,
-    height: 100,
-    backgroundColor: 'red',
-    alignSelf: 'center',
-    marginTop: 200,
-  },
-});

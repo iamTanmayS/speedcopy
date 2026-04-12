@@ -28,8 +28,16 @@ export interface AuthTokens {
 }
 
 export interface LoginRequest {
-    phone: PhoneNumber;
-    password?: string;
+    email: string;
+}
+
+export interface OTPRequest {
+    email: string;
+}
+
+export interface VerifyOTPRequest {
+    email: string;
+    otp: string;
 }
 
 export interface AuthenticatedUser {

@@ -84,6 +84,7 @@ export interface CartItem {
     qcApprovalToken?: string;
     editorState?: EditorState;
     customizationNotes?: string;
+    configSelections?: Record<string, string>; // Maps option keys to option value IDs
     unitPrice: PaisaAmount;
     totalPrice: PaisaAmount;
     deliveryMode: DeliveryMode;

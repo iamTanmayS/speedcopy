@@ -11,6 +11,8 @@ import orderRoutes from "./routes/order.routes.js";
 import vendorRoutes from "./routes/vendor.routes.js";
 import catalogRoutes from "./routes/catalog.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import uploadRoutes from "./routes/upload.routes.js";
+import wishlistRoutes from "./routes/wishlist.routes.js";
 
 const app = express();
 app.set('trust proxy', 1);
@@ -26,6 +28,8 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/vendor", vendorRoutes);
 app.use("/api/catalog", catalogRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/upload", uploadRoutes);
+app.use("/api/wishlist", wishlistRoutes);
 
 // Health check endpoint for Docker/Render
 app.get("/api/health", (req, res) => {

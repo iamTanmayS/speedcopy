@@ -1,9 +1,9 @@
 import type { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
 import pool from '../config/db/db.js';
 import { generateTokens } from '../utils/jwt.util.js';
 import { randomUUID } from 'crypto';
-import type { AuthenticatedUser, LoginRequest, LoginResponse } from '../types/auth.js';
+import { sendOTP } from '../services/email.service.js';
+import type { AuthenticatedUser, OTPRequest, VerifyOTPRequest, LoginResponse } from '../types/auth.js';
 import type { ApiSuccess, ApiError } from '../types/shared.js';
 
 const ts = () => new Date().toISOString();
@@ -12,7 +12,7 @@ const rid = () => randomUUID();
 export function formatUserObject(row: any): AuthenticatedUser {
     return {
         id: row.id,
-        name: row.name,
+        name: row.name || 'User',
         email: row.email,
         phone: row.phone_number || '',
         role: row.role || 'customer',
@@ -20,59 +20,112 @@ export function formatUserObject(row: any): AuthenticatedUser {
     };
 }
 
-export const register = async (req: Request, res: Response) => {
-    const { name, phone, password } = req.body;
-    if (!name || !phone || !password) {
-        const e: ApiError = { success: false, error: { code: 'VALIDATION_ERROR', message: 'Name, phone, and password are required' }, timestamp: ts(), requestId: rid() };
+/**
+ * Handle OTP Request (Login or Register)
+ */
+export const login = async (req: Request<{}, {}, OTPRequest>, res: Response) => {
+    const { email } = req.body;
+    
+    if (!email) {
+        const e: ApiError = { success: false, error: { code: 'VALIDATION_ERROR', message: 'Email is required' }, timestamp: ts(), requestId: rid() };
         res.status(400).json(e); return;
     }
+
     try {
-        const existing = await pool.query('SELECT id FROM users WHERE phone_number = $1', [phone]);
-        if (existing.rows.length) {
-            const e: ApiError = { success: false, error: { code: 'VALIDATION_ERROR', message: 'Phone number already in use' }, timestamp: ts(), requestId: rid() };
-            res.status(400).json(e); return;
+        // 1. Check if user exists, if not create a placeholder
+        let userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        
+        if (!userResult.rows.length) {
+            // Automatic "Register" - Create shallow user
+            userResult = await pool.query(
+                `INSERT INTO users (email, provider, role) VALUES ($1, 'email', 'customer') RETURNING *`,
+                [email]
+            );
         }
-        const passwordHash = await bcrypt.hash(password, 10);
-        const newUser = await pool.query(
-            `INSERT INTO users (name, phone_number, password_hash, provider, email_verified) VALUES ($1,$2,$3,'phone',true) RETURNING *`,
-            [name, phone, passwordHash]
+
+        const user = userResult.rows[0];
+
+        // 2. Generate 6-digit OTP
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+
+        // 3. Save OTP to DB
+        await pool.query(
+            'UPDATE users SET otp_code = $1, otp_expiry = $2 WHERE id = $3',
+            [otpCode, otpExpiry, user.id]
         );
-        const user = newUser.rows[0];
-        const tokens = generateTokens({ userId: user.id, role: user.role ?? 'customer', permissions: user.permissions ?? [] });
-        const resp: ApiSuccess<LoginResponse> = { success: true, data: { tokens: { accessToken: tokens.accessToken }, user: formatUserObject(user) }, message: 'Registration successful', timestamp: ts(), requestId: rid() };
-        res.status(201).json(resp);
-    } catch (err) {
-        console.error('Register error:', err);
-        res.status(500).json({ success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal server error' }, timestamp: ts(), requestId: rid() });
+
+        // 4. Send Email
+        await sendOTP(email, otpCode);
+
+        const resp: ApiSuccess<{ email: string }> = { 
+            success: true, 
+            data: { email }, 
+            message: 'OTP sent successfully', 
+            timestamp: ts(), 
+            requestId: rid() 
+        };
+        res.status(200).json(resp);
+
+    } catch (err: any) {
+        console.error('OTP Request error:', err);
+        res.status(500).json({ success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: err.message }, timestamp: ts(), requestId: rid() });
     }
 };
 
-export const login = async (req: Request<{}, {}, LoginRequest>, res: Response) => {
-    const { phone, password } = req.body;
-    if (!phone || !password) {
-        const e: ApiError = { success: false, error: { code: 'VALIDATION_ERROR', message: 'Phone and password are required' }, timestamp: ts(), requestId: rid() };
+/**
+ * Verify OTP and login
+ */
+export const verifyOTP = async (req: Request<{}, {}, VerifyOTPRequest>, res: Response) => {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+        const e: ApiError = { success: false, error: { code: 'VALIDATION_ERROR', message: 'Email and OTP are required' }, timestamp: ts(), requestId: rid() };
         res.status(400).json(e); return;
     }
+
     try {
-        const userResult = await pool.query('SELECT * FROM users WHERE phone_number = $1', [phone]);
+        const userResult = await pool.query(
+            'SELECT * FROM users WHERE email = $1 AND otp_code = $2 AND otp_expiry > NOW()',
+            [email, otp]
+        );
+
         if (!userResult.rows.length) {
-            const e: ApiError = { success: false, error: { code: 'AUTH_INVALID_CREDENTIALS', message: 'Invalid credentials' }, timestamp: ts(), requestId: rid() };
+            const e: ApiError = { success: false, error: { code: 'AUTH_INVALID_CREDENTIALS', message: 'Invalid or expired OTP' }, timestamp: ts(), requestId: rid() };
             res.status(401).json(e); return;
         }
+
         const user = userResult.rows[0];
-        const valid = await bcrypt.compare(password, user.password_hash);
-        if (!valid) {
-            const e: ApiError = { success: false, error: { code: 'AUTH_INVALID_CREDENTIALS', message: 'Invalid credentials' }, timestamp: ts(), requestId: rid() };
-            res.status(401).json(e); return;
-        }
+
+        // Clear OTP after successful verify
+        await pool.query('UPDATE users SET otp_code = NULL, otp_expiry = NULL WHERE id = $1', [user.id]);
+
+        // Generate JWT
         const tokens = generateTokens({ userId: user.id, role: user.role ?? 'customer', permissions: user.permissions ?? [] });
-        const resp: ApiSuccess<LoginResponse> = { success: true, data: { tokens: { accessToken: tokens.accessToken }, user: formatUserObject(user) }, message: 'Login successful', timestamp: ts(), requestId: rid() };
+        
+        const resp: ApiSuccess<LoginResponse> = { 
+            success: true, 
+            data: { 
+                tokens: { accessToken: tokens.accessToken }, 
+                user: formatUserObject(user) 
+            }, 
+            message: 'Login successful', 
+            timestamp: ts(), 
+            requestId: rid() 
+        };
         res.status(200).json(resp);
-    } catch (err) {
-        console.error('Login error:', err);
-        res.status(500).json({ success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal server error' }, timestamp: ts(), requestId: rid() });
+
+    } catch (err: any) {
+        console.error('Verify error:', err);
+        res.status(500).json({ success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: err.message }, timestamp: ts(), requestId: rid() });
     }
 };
+
+/**
+ * Kept register as placeholder to avoid breaking potential bulk register flows, 
+ * but redirects to login logic now if needed.
+ */
+export const register = login;
 
 export const refresh = async (req: Request, res: Response) => {
     const { refreshToken } = req.body;
