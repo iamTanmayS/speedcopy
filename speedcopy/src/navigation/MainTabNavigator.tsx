@@ -46,7 +46,10 @@ export const MainTabNavigator = () => {
             <Tab.Screen 
                 name="CartTab" 
                 component={CartScreen} 
-                options={{ tabBarLabel: 'Cart' }} 
+                options={{ 
+                    tabBarLabel: 'Cart',
+                    tabBarStyle: { display: 'none' } 
+                }} 
             />
             <Tab.Screen 
                 name="WishlistTab" 

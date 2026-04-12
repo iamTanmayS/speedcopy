@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, Text, ViewStyle, StyleProp } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets, Edge } from 'react-native-safe-area-context';
+import { SafeAreaView,  useSafeAreaInsets, Edge  } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../../theme';
 

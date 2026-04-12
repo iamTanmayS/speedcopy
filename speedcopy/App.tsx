@@ -12,10 +12,12 @@ export default function App() {
   const { fetchDevToken } = useAuthStore();
 
   useEffect(() => {
-    // Only auto-fetch a dev token in development — never in production builds
+    // Disabled dev auto-login for testing auth flow
+    /*
     if (__DEV__) {
       fetchDevToken();
     }
+    */
   }, []);
 
   return (

@@ -49,8 +49,12 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
         const user: CustomerProfile = { id: row.id, name: row.name || 'User', email: row.email, phone: row.phone || '', city: row.city ?? undefined, isActive: row.is_active ?? true, createdAt: row.created_at ? new Date(row.created_at).toISOString() : ts() };
         const resp: ApiSuccess<CustomerProfile> = { success: true, data: user, message: 'Profile updated', timestamp: ts(), requestId: rid() };
         res.status(200).json(resp);
-    } catch (err) {
+    } catch (err: any) {
         console.error('Update profile error:', err);
+        if (err.code === '23505') {
+            res.status(400).json({ success: false, error: { code: 'CONFLICT', message: 'This mobile number is already connected to another account.' }, timestamp: ts(), requestId: rid() });
+            return;
+        }
         res.status(500).json({ success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal server error' }, timestamp: ts(), requestId: rid() });
     }
 };

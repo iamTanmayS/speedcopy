@@ -1,5 +1,6 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView, Alert } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useTheme, Theme } from '../../../theme';
 import { AnimatedButton } from '../../components/animations/AnimatedButton';
 import { AnimatedInput } from '../../components/animations/AnimatedInput';

@@ -1,14 +1,13 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  Dimensions, Alert, ActivityIndicator, SafeAreaView,
-} from 'react-native';
+  Dimensions, Alert, ActivityIndicator, } from 'react-native';
 import { WebView } from 'react-native-webview';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 
 import { Ionicons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView,  useSafeAreaInsets  } from 'react-native-safe-area-context';
 import { useTheme } from '../../../theme';
 import { useBuilderStore } from '../../state_mgmt/store/builderStore';
 import { fabricEditorHtml } from './fabricEditorHtml';
